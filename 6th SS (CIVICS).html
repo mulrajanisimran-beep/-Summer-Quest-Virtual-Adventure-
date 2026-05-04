@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balloon Quiz – Social Science Civics | Class 6</title>
+<style>
+  /* ── ROOT VARIABLES ── */
+  :root {
+    --sky1: #87ceeb;
+    --sky2: #c9e8f7;
+    --gold: #f5c518;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+    --green: #27ae60;
+    --red: #e74c3c;
+    --dark: #1a1a2e;
+    --white: #fff;
+    --shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    background: linear-gradient(180deg, #87ceeb 0%, #c9e8f7 40%, #e8f5e9 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── CLOUDS ── */
+  .cloud {
+    position: fixed;
+    background: #fff;
+    border-radius: 50px;
+    opacity: 0.75;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+  }
+  .cloud.c1 { width: 180px; height: 50px; top: 8%; left: -200px; animation: drift 22s linear infinite; }
+  .cloud.c1::before { width: 90px; height: 90px; top: -45px; left: 20px; }
+  .cloud.c1::after  { width: 60px; height: 60px; top: -30px; left: 80px; }
+  .cloud.c2 { width: 140px; height: 40px; top: 20%; left: -200px; animation: drift 30s linear 6s infinite; opacity: 0.55; }
+  .cloud.c2::before { width: 70px; height: 70px; top: -35px; left: 15px; }
+  .cloud.c2::after  { width: 50px; height: 50px; top: -25px; left: 60px; }
+  .cloud.c3 { width: 200px; height: 55px; top: 5%; left: -200px; animation: drift 26s linear 12s infinite; opacity: 0.65; }
+  .cloud.c3::before { width: 100px; height: 100px; top: -50px; left: 25px; }
+  .cloud.c3::after  { width: 70px; height: 70px; top: -35px; left: 90px; }
+  @keyframes drift { from { left: -220px; } to { left: 110vw; } }
+
+  /* ── HEADER ── */
+  #header {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 18px 10px 10px;
+    background: linear-gradient(135deg, #1565c0 0%, #283593 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(21,101,192,0.4);
+  }
+  #header .school-name {
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #ffe082;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  }
+  #header h1 {
+    font-size: 2rem;
+    margin: 4px 0 2px;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.35);
+  }
+  #header .subtitle {
+    font-size: 0.95rem;
+    opacity: 0.88;
+    font-style: italic;
+  }
+
+  /* ── SCOREBAR ── */
+  #scorebar {
+    display: flex; justify-content: center; align-items: center; gap: 28px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(6px);
+    border-bottom: 2px solid rgba(21,101,192,0.2);
+    font-size: 1rem;
+    font-weight: bold;
+    color: #1a237e;
+    position: relative; z-index: 10;
+    flex-wrap: wrap;
+  }
+  #scorebar span { display: flex; align-items: center; gap: 6px; }
+  .badge {
+    background: #1565c0; color: #fff;
+    border-radius: 20px; padding: 3px 14px;
+    font-size: 1rem;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    display: none;
+    position: relative; z-index: 5;
+    min-height: calc(100vh - 120px);
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    padding: 20px 10px 40px;
+  }
+  .screen.active { display: flex; }
+
+  /* ── START SCREEN ── */
+  #start-screen .card {
+    background: rgba(255,255,255,0.92);
+    border-radius: 24px;
+    padding: 40px 44px;
+    box-shadow: var(--shadow);
+    max-width: 520px; width: 100%;
+    text-align: center;
+    border: 3px solid #1565c0;
+  }
+  #start-screen .emoji-row { font-size: 2.8rem; margin-bottom: 10px; }
+  #start-screen h2 { color: #1565c0; font-size: 1.7rem; margin-bottom: 8px; }
+  #start-screen p { color: #444; font-size: 1rem; line-height: 1.7; margin-bottom: 6px; }
+  #start-screen .rules {
+    background: #e3f2fd; border-radius: 12px;
+    padding: 14px 18px; margin: 16px 0 22px;
+    text-align: left; color: #1565c0;
+    font-size: 0.97rem; line-height: 1.8;
+  }
+  #start-screen .rules li { margin-left: 16px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none; border-radius: 30px;
+    padding: 13px 38px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    letter-spacing: 0.5px;
+  }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,0.22); }
+  .btn:active { transform: scale(0.97); }
+  .btn-blue { background: linear-gradient(135deg,#1565c0,#283593); color:#fff; }
+  .btn-green { background: linear-gradient(135deg,#27ae60,#1e8449); color:#fff; }
+  .btn-orange { background: linear-gradient(135deg,#e67e22,#d35400); color:#fff; }
+
+  /* ── GAME SCREEN ── */
+  #game-screen {
+    justify-content: flex-start;
+    padding-top: 10px;
+  }
+
+  /* Progress bar */
+  #progress-wrap {
+    width: 100%; max-width: 700px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 20px; height: 14px;
+    margin: 8px auto 0;
+    border: 1.5px solid rgba(21,101,192,0.3);
+  }
+  #progress-bar {
+    height: 100%; border-radius: 20px;
+    background: linear-gradient(90deg,#1565c0,#42a5f5);
+    transition: width 0.5s ease;
+  }
+
+  /* Balloon arena */
+  #balloon-arena {
+    width: 100%; max-width: 760px;
+    min-height: 340px;
+    position: relative;
+    margin: 18px auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px 0 20px;
+  }
+
+  /* ── BALLOON ── */
+  .balloon-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer;
+    animation: floatUp 3s ease-in-out infinite;
+    transform-origin: bottom center;
+    position: relative;
+  }
+  .balloon-wrap:nth-child(2) { animation-delay: 0.3s; }
+  .balloon-wrap:nth-child(3) { animation-delay: 0.6s; }
+  .balloon-wrap:nth-child(4) { animation-delay: 0.9s; }
+  @keyframes floatUp {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-18px) rotate(2deg); }
+  }
+  .balloon-wrap:hover .balloon-body { filter: brightness(1.15); transform: scale(1.08); }
+  .balloon-wrap:hover .balloon-label { transform: scale(1.06); }
+
+  .balloon-body {
+    width: 90px; height: 110px;
+    border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s, filter 0.2s;
+    box-shadow: inset -8px -12px 20px rgba(0,0,0,0.15), 0 6px 18px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .balloon-body::after {
+    content: '';
+    position: absolute;
+    width: 22px; height: 35px;
+    background: rgba(255,255,255,0.35);
+    border-radius: 50%;
+    top: 12px; left: 16px;
+    transform: rotate(-30deg);
+  }
+  .balloon-body .opt-letter {
+    font-size: 1.6rem; font-weight: bold;
+    color: rgba(0,0,0,0.55);
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    z-index: 1;
+  }
+  .balloon-knot {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 12px solid inherit;
+    margin-top: -2px;
+  }
+  .balloon-string {
+    width: 1.5px; height: 55px;
+    background: rgba(80,60,30,0.5);
+    margin-top: 0;
+  }
+  .balloon-label {
+    position: absolute;
+    bottom: 58px;
+    font-size: 0.72rem;
+    font-weight: bold;
+    color: rgba(0,0,0,0.7);
+    text-align: center;
+    max-width: 80px;
+    line-height: 1.2;
+    background: rgba(255,255,255,0.55);
+    border-radius: 6px;
+    padding: 2px 5px;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Balloon colors */
+  .bc0 { background: radial-gradient(circle at 35% 35%, #ff8a80, #e53935); }
+  .bc0 .balloon-knot { border-top-color: #e53935; }
+  .bc1 { background: radial-gradient(circle at 35% 35%, #80d8ff, #0288d1); }
+  .bc1 .balloon-knot { border-top-color: #0288d1; }
+  .bc2 { background: radial-gradient(circle at 35% 35%, #ccff90, #558b2f); }
+  .bc2 .balloon-knot { border-top-color: #558b2f; }
+  .bc3 { background: radial-gradient(circle at 35% 35%, #ffe57f, #f9a825); }
+  .bc3 .balloon-knot { border-top-color: #f9a825; }
+
+  /* Pop animation */
+  @keyframes popOut {
+    0%   { transform: scale(1); opacity: 1; }
+    40%  { transform: scale(1.5); opacity: 0.6; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  .popping { animation: popOut 0.4s ease forwards !important; pointer-events: none; }
+
+  /* Question box */
+  #question-box {
+    background: rgba(255,255,255,0.94);
+    border: 3px solid #1565c0;
+    border-radius: 20px;
+    max-width: 700px; width: 95%;
+    margin: 10px auto 0;
+    padding: 22px 28px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  #q-number { font-size: 0.88rem; color: #1565c0; font-weight: bold; margin-bottom: 4px; }
+  #q-text { font-size: 1.2rem; color: #1a237e; font-weight: bold; line-height: 1.5; }
+
+  /* Feedback toast */
+  #feedback {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    padding: 12px 34px; border-radius: 30px;
+    font-size: 1.1rem; font-weight: bold;
+    color: #fff; z-index: 100;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  }
+  #feedback.show { opacity: 1; }
+  #feedback.correct { background: #27ae60; }
+  #feedback.wrong   { background: #e74c3c; }
+
+  /* Confetti particle */
+  .confetti {
+    position: fixed; width: 10px; height: 10px;
+    border-radius: 2px;
+    pointer-events: none; z-index: 200;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── RESULT SCREEN ── */
+  #result-screen {
+    text-align: center;
+    padding: 30px 15px 50px;
+  }
+  .result-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 28px;
+    padding: 40px 50px;
+    max-width: 560px; width: 100%;
+    box-shadow: var(--shadow);
+    border: 3px solid;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 8px;
+  }
+  .medal-icon { font-size: 5rem; margin-bottom: 12px; display: block; }
+  .medal-title { font-size: 2rem; font-weight: bold; margin-bottom: 8px; }
+  .score-display {
+    font-size: 3.5rem; font-weight: bold;
+    margin: 10px 0 6px;
+  }
+  .score-sub { font-size: 1rem; color: #555; margin-bottom: 18px; }
+  .medal-msg {
+    font-size: 1.1rem; line-height: 1.7;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+
+  /* Gold */
+  .medal-gold .result-card { border-color: var(--gold); }
+  .medal-gold .result-card::before { background: linear-gradient(90deg,#f5c518,#ffe082); }
+  .medal-gold .medal-title { color: #b8860b; }
+  .medal-gold .score-display { color: #b8860b; }
+  .medal-gold .medal-msg { background: #fffde7; color: #5d4037; }
+
+  /* Silver */
+  .medal-silver .result-card { border-color: var(--silver); }
+  .medal-silver .result-card::before { background: linear-gradient(90deg,#bdbdbd,#e0e0e0); }
+  .medal-silver .medal-title { color: #616161; }
+  .medal-silver .score-display { color: #616161; }
+  .medal-silver .medal-msg { background: #f5f5f5; color: #424242; }
+
+  /* Bronze */
+  .medal-bronze .result-card { border-color: var(--bronze); }
+  .medal-bronze .result-card::before { background: linear-gradient(90deg,#cd7f32,#e8a96a); }
+  .medal-bronze .medal-title { color: #8d4e1a; }
+  .medal-bronze .score-display { color: #8d4e1a; }
+  .medal-bronze .medal-msg { background: #fff3e0; color: #5d4037; }
+
+  /* Participation */
+  .medal-participation .result-card { border-color: #90caf9; }
+  .medal-participation .result-card::before { background: linear-gradient(90deg,#90caf9,#bbdefb); }
+  .medal-participation .medal-title { color: #1565c0; }
+  .medal-participation .score-display { color: #1565c0; }
+  .medal-participation .medal-msg { background: #e3f2fd; color: #1a237e; }
+
+  /* Review table */
+  #review-table {
+    width: 100%; border-collapse: collapse;
+    margin: 20px 0; font-size: 0.92rem;
+    max-height: 300px; overflow-y: auto;
+    display: block;
+  }
+  #review-table thead th {
+    background: #1565c0; color: #fff;
+    padding: 8px 12px; text-align: left;
+    font-weight: bold;
+    position: sticky; top: 0;
+  }
+  #review-table tbody tr:nth-child(even) { background: #e3f2fd; }
+  #review-table tbody tr:nth-child(odd)  { background: #fff; }
+  #review-table td { padding: 7px 12px; vertical-align: top; }
+  .rev-correct { color: #27ae60; font-weight: bold; }
+  .rev-wrong   { color: #e74c3c; font-weight: bold; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    #header h1 { font-size: 1.4rem; }
+    .balloon-body { width: 72px; height: 88px; }
+    .result-card { padding: 28px 18px; }
+    .score-display { font-size: 2.8rem; }
+    #question-box { padding: 16px 14px; }
+    #q-text { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating clouds -->
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
+<div class="cloud c3"></div>
+
+<!-- ── HEADER ── -->
+<div id="header">
+  <div class="school-name">🏫 Shree G. M. Donda Primary School</div>
+  <h1>🎈 Balloon Quiz Challenge 🎈</h1>
+  <div class="subtitle">Social Science – Civics &nbsp;|&nbsp; Class 6 &nbsp;|&nbsp; Summer Activity</div>
+</div>
+
+<!-- ── SCORE BAR ── -->
+<div id="scorebar">
+  <span>❓ Question: <span class="badge" id="sb-q">0 / 20</span></span>
+  <span>✅ Correct: <span class="badge" id="sb-c" style="background:#27ae60">0</span></span>
+  <span>❌ Wrong: <span class="badge" id="sb-w" style="background:#e74c3c">0</span></span>
+</div>
+
+<!-- ══════════════════════════════════
+     START SCREEN
+══════════════════════════════════ -->
+<div id="start-screen" class="screen active">
+  <div class="card">
+    <div class="emoji-row">🎈🎈🎈</div>
+    <h2>Welcome, Young Scholar!</h2>
+    <p>Pop the balloons to answer <strong>20 Civics questions</strong>.<br>
+       Earn a medal based on your score!</p>
+    <div class="rules">
+      <strong>📜 Rules:</strong>
+      <ul>
+        <li>Read the question carefully.</li>
+        <li>Pop the correct balloon (A, B, C or D).</li>
+        <li>Each correct answer = <strong>1 point</strong>.</li>
+        <li>Total = 20 points.</li>
+      </ul>
+      <br>
+      <strong>🏅 Medal Chart:</strong>
+      <ul>
+        <li>🥇 Gold Medal — 17–20 correct</li>
+        <li>🥈 Silver Medal — 13–16 correct</li>
+        <li>🥉 Bronze Medal — 9–12 correct</li>
+        <li>🎖️ Participation — 0–8 correct</li>
+      </ul>
+    </div>
+    <button class="btn btn-blue" onclick="startGame()">🎈 Start the Quiz!</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     GAME SCREEN
+══════════════════════════════════ -->
+<div id="game-screen" class="screen">
+
+  <!-- Progress bar -->
+  <div id="progress-wrap" style="width:95%;max-width:700px;">
+    <div id="progress-bar" style="width:0%"></div>
+  </div>
+
+  <!-- Question box -->
+  <div id="question-box">
+    <div id="q-number">Question 1 of 20</div>
+    <div id="q-text">Loading question…</div>
+  </div>
+
+  <!-- Balloon arena -->
+  <div id="balloon-arena"></div>
+
+</div>
+
+<!-- ══════════════════════════════════
+     RESULT SCREEN
+══════════════════════════════════ -->
+<div id="result-screen" class="screen">
+  <div id="medal-wrap"><!-- medal card injected here --></div>
+
+  <!-- Review table -->
+  <div style="max-width:700px;width:95%;margin-top:30px;background:rgba(255,255,255,0.92);border-radius:18px;padding:20px 20px 10px;box-shadow:var(--shadow);">
+    <h3 style="color:#1565c0;margin-bottom:12px;font-size:1.2rem;">📋 Answer Review</h3>
+    <div style="overflow-x:auto;">
+      <table id="review-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Question</th>
+            <th>Your Answer</th>
+            <th>Correct Answer</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody id="review-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn btn-blue" onclick="restartGame()">🔄 Play Again</button>
+
+  </div>
+</div>
+
+<!-- Feedback toast -->
+<div id="feedback"></div>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+/* ── QUESTION BANK ── */
+const questions = [
+  {
+    q: "What is the capital city of India?",
+    opts: ["Mumbai","New Delhi","Kolkata","Chennai"],
+    ans: 1
+  },
+  {
+    q: "Who is called the 'Father of the Nation' of India?",
+    opts: ["Jawaharlal Nehru","Bhimrao Ambedkar","Mahatma Gandhi","Subhas Chandra Bose"],
+    ans: 2
+  },
+  {
+    q: "When did India get independence from British rule?",
+    opts: ["15 August 1947","26 January 1950","15 August 1950","26 January 1947"],
+    ans: 0
+  },
+  {
+    q: "Which day is celebrated as Republic Day in India?",
+    opts: ["15 August","2 October","26 January","14 November"],
+    ans: 2
+  },
+  {
+    q: "Who was the first Prime Minister of India?",
+    opts: ["Sardar Patel","Lal Bahadur Shastri","Jawaharlal Nehru","Rajendra Prasad"],
+    ans: 2
+  },
+  {
+    q: "What is the national animal of India?",
+    opts: ["Lion","Elephant","Tiger","Leopard"],
+    ans: 2
+  },
+  {
+    q: "What is the national bird of India?",
+    opts: ["Sparrow","Peacock","Parrot","Eagle"],
+    ans: 1
+  },
+  {
+    q: "What is the national flower of India?",
+    opts: ["Rose","Sunflower","Lotus","Jasmine"],
+    ans: 2
+  },
+  {
+    q: "How many colours are there in the Indian national flag?",
+    opts: ["Two","Three","Four","Five"],
+    ans: 1
+  },
+  {
+    q: "What does the Ashoka Chakra (wheel) in the Indian flag represent?",
+    opts: ["Courage","The Wheel of Law (Dharma)","Sun","Peace"],
+    ans: 1
+  },
+  {
+    q: "Who wrote India's national anthem 'Jana Gana Mana'?",
+    opts: ["Rabindranath Tagore","Bankim Chandra","Sarojini Naidu","Subramanya Bharati"],
+    ans: 0
+  },
+  {
+    q: "What is the currency of India?",
+    opts: ["Dollar","Pound","Rupee","Yen"],
+    ans: 2
+  },
+  {
+    q: "What is the minimum age required to vote in Indian elections?",
+    opts: ["16 years","18 years","21 years","25 years"],
+    ans: 1
+  },
+  {
+    q: "The Constitution of India came into effect on which date?",
+    opts: ["15 August 1947","26 January 1950","2 October 1950","1 January 1948"],
+    ans: 1
+  },
+  {
+    q: "Who makes laws for the entire country in India?",
+    opts: ["State Government","Supreme Court","Parliament","Panchayat"],
+    ans: 2
+  },
+  {
+    q: "What is the national fruit of India?",
+    opts: ["Banana","Mango","Apple","Guava"],
+    ans: 1
+  },
+  {
+    q: "Panchayati Raj is related to which level of government?",
+    opts: ["Central government","State government","Village/local government","District government"],
+    ans: 2
+  },
+  {
+    q: "Which fundamental right gives every child the right to free education (6–14 years)?",
+    opts: ["Right to Equality","Right to Freedom","Right to Education","Right against Exploitation"],
+    ans: 2
+  },
+  {
+    q: "How many states are there in India (as of recent years)?",
+    opts: ["25","28","30","32"],
+    ans: 1
+  },
+  {
+    q: "The saffron colour in the Indian national flag stands for:",
+    opts: ["Peace and truth","Prosperity of land","Courage and sacrifice","Unity and strength"],
+    ans: 2
+  }
+];
+
+/* ── STATE ── */
+let current = 0;
+let score = 0;
+let wrong = 0;
+let answered = false;
+let userAnswers = [];
+
+const LABELS = ['A','B','C','D'];
+const COLORS = ['bc0','bc1','bc2','bc3'];
+
+/* ── HELPERS ── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateScorebar() {
+  document.getElementById('sb-q').textContent = `${current} / 20`;
+  document.getElementById('sb-c').textContent = score;
+  document.getElementById('sb-w').textContent = wrong;
+  document.getElementById('progress-bar').style.width = `${(current/20)*100}%`;
+}
+
+/* ── START ── */
+function startGame() {
+  current = 0; score = 0; wrong = 0; answered = false; userAnswers = [];
+  updateScorebar();
+  showScreen('game-screen');
+  loadQuestion();
+}
+
+/* ── LOAD QUESTION ── */
+function loadQuestion() {
+  if (current >= questions.length) { showResult(); return; }
+  answered = false;
+  const q = questions[current];
+  document.getElementById('q-number').textContent = `Question ${current+1} of 20`;
+  document.getElementById('q-text').textContent = q.q;
+  updateScorebar();
+
+  const arena = document.getElementById('balloon-arena');
+  arena.innerHTML = '';
+
+  // Shuffle order but keep track of original index
+  const indices = [0,1,2,3];
+  shuffle(indices);
+
+  indices.forEach((oi, pos) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'balloon-wrap';
+    wrap.style.animationDelay = `${pos * 0.25}s`;
+
+    const body = document.createElement('div');
+    body.className = `balloon-body ${COLORS[pos]}`;
+
+    const letter = document.createElement('span');
+    letter.className = 'opt-letter';
+    letter.textContent = LABELS[pos];
+    body.appendChild(letter);
+
+    const knot = document.createElement('div');
+    knot.className = 'balloon-knot';
+    knot.style.borderTopColor = getKnotColor(pos);
+
+    const string = document.createElement('div');
+    string.className = 'balloon-string';
+
+    const label = document.createElement('div');
+    label.className = 'balloon-label';
+    label.textContent = q.opts[oi];
+
+    wrap.appendChild(body);
+    wrap.appendChild(knot);
+    wrap.appendChild(string);
+    wrap.appendChild(label);
+
+    wrap.dataset.optIndex = oi;
+    wrap.addEventListener('click', () => selectAnswer(wrap, oi));
+    arena.appendChild(wrap);
+  });
+}
+
+function getKnotColor(pos) {
+  const map = ['#e53935','#0288d1','#558b2f','#f9a825'];
+  return map[pos];
+}
+
+function shuffle(arr) {
+  for(let i = arr.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+}
+
+/* ── SELECT ANSWER ── */
+function selectAnswer(wrap, optIndex) {
+  if (answered) return;
+  answered = true;
+
+  const correct = questions[current].ans;
+  const isRight = optIndex === correct;
+
+  userAnswers.push({ qIndex: current, chosen: optIndex, correct });
+
+  // Pop chosen balloon
+  wrap.classList.add('popping');
+
+  if (isRight) {
+    score++;
+    showFeedback('🎉 Correct! Well done!', true);
+    launchConfetti();
+  } else {
+    wrong++;
+    showFeedback(`❌ Oops! Correct answer: "${questions[current].opts[correct]}"`, false);
+    // Flash all balloons to reveal correct
+    const allWraps = document.querySelectorAll('.balloon-wrap');
+    allWraps.forEach(w => {
+      if (parseInt(w.dataset.optIndex) === correct) {
+        w.querySelector('.balloon-body').style.outline = '4px solid #27ae60';
+        w.querySelector('.balloon-body').style.boxShadow = '0 0 0 4px #27ae60';
+      }
+    });
+  }
+
+  updateScorebar();
+  setTimeout(() => {
+    current++;
+    loadQuestion();
+  }, 1500);
+}
+
+/* ── FEEDBACK ── */
+let fbTimer;
+function showFeedback(msg, correct) {
+  const el = document.getElementById('feedback');
+  clearTimeout(fbTimer);
+  el.textContent = msg;
+  el.className = 'show ' + (correct ? 'correct' : 'wrong');
+  fbTimer = setTimeout(() => el.className = '', 1400);
+}
+
+/* ── CONFETTI ── */
+function launchConfetti() {
+  const colors = ['#f5c518','#e53935','#1565c0','#27ae60','#e91e63','#ff9800'];
+  for (let i=0; i<28; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random()*100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random()*colors.length)];
+      c.style.animationDuration = (0.9 + Math.random()*1.2) + 's';
+      c.style.width = (6+Math.random()*8) + 'px';
+      c.style.height = (6+Math.random()*8) + 'px';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 2200);
+    }, i * 40);
+  }
+}
+
+/* ── RESULT ── */
+function showResult() {
+  showScreen('result-screen');
+
+  let medalClass, medalEmoji, medalName, medalMsg;
+
+  if (score >= 17) {
+    medalClass = 'medal-gold';
+    medalEmoji = '🥇';
+    medalName  = 'Gold Medal';
+    medalMsg   = `Fantastic! You scored ${score}/20 — an outstanding performance! You are a true Civics champion. Keep shining! 🌟`;
+  } else if (score >= 13) {
+    medalClass = 'medal-silver';
+    medalEmoji = '🥈';
+    medalName  = 'Silver Medal';
+    medalMsg   = `Great job! You scored ${score}/20. You have a very good understanding of Civics. A little more revision and you'll earn gold! 💪`;
+  } else if (score >= 9) {
+    medalClass = 'medal-bronze';
+    medalEmoji = '🥉';
+    medalName  = 'Bronze Medal';
+    medalMsg   = `Good effort! You scored ${score}/20. You know the basics well. Review the questions you missed and try again! 📚`;
+  } else {
+    medalClass = 'medal-participation';
+    medalEmoji = '🎖️';
+    medalName  = 'Participation Certificate';
+    medalMsg   = `You scored ${score}/20. Don't give up — every expert was once a beginner! Read your Civics book and try again. You can do it! 😊`;
+  }
+
+  const pct = Math.round((score/20)*100);
+  const card = `
+    <div class="${medalClass}">
+      <div class="result-card">
+        <div class="school-name" style="font-size:0.88rem;color:#888;font-variant:small-caps;margin-bottom:8px;letter-spacing:1px;">
+          Shree G. M. Donda Primary School
+        </div>
+        <span class="medal-icon">${medalEmoji}</span>
+        <div class="medal-title">${medalName}</div>
+        <div class="score-display">${score} <span style="font-size:1.5rem;opacity:0.6">/ 20</span></div>
+        <div class="score-sub">Percentage: ${pct}% &nbsp;|&nbsp; Correct: ${score} &nbsp;|&nbsp; Wrong: ${wrong}</div>
+        <div class="medal-msg">${medalMsg}</div>
+      </div>
+    </div>`;
+  document.getElementById('medal-wrap').innerHTML = card;
+
+  // Build review table
+  const tbody = document.getElementById('review-body');
+  tbody.innerHTML = '';
+  userAnswers.forEach((ua, i) => {
+    const q = questions[ua.qIndex];
+    const isRight = ua.chosen === ua.correct;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${q.q}</td>
+      <td class="${isRight?'rev-correct':'rev-wrong'}">${LABELS[ua.chosen]} – ${q.opts[ua.chosen]}</td>
+      <td class="rev-correct">${LABELS[ua.correct]} – ${q.opts[ua.correct]}</td>
+      <td>${isRight ? '✅' : '❌'}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Celebration confetti burst
+  for(let k=0;k<3;k++) setTimeout(launchConfetti, k*600);
+}
+
+/* ── RESTART ── */
+function restartGame() { startGame(); }
+
+/* ── INIT scorebar ── */
+updateScorebar();
+</script>
+</body>
+</html>
